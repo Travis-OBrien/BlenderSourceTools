@@ -337,6 +337,8 @@ class SmdImporter(bpy.types.Operator, Logger):
 
 		return a
 
+
+
 	def readFrames(self):
 		smd = self.smd
 		# We only care about pose data in some SMD types
@@ -383,8 +385,16 @@ class SmdImporter(bpy.types.Operator, Logger):
 				continue
 				
 			# Read SMD data
-			pos = Vector([float(values[1]), float(values[2]), float(values[3])])
-			rot = Euler([float(values[4]), float(values[5]), float(values[6])])
+			# files could potentially have `-..0` which will fail on float conversion.
+			# for any situation where a float conversion fails, always return `0.0`.
+			def f(value):
+				try:
+					return float(value)
+				except:
+					return 0.0
+                    
+			pos = Vector([f(values[1]), f(values[2]), f(values[3])])
+			rot = Euler([f(values[4]), f(values[5]), f(values[6])])
 			
 			keyframe = KeyFrame()
 			keyframe.frame = num_frames - 1
